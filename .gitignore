@@ -55,6 +55,10 @@ Thumbs.db
 *.key
 *.pem
 
+# Personal
+personal_plan.md 
+**/claude.md
+
 # --------------------------------------------------------
 # BEGIN Explictly Allowed Files (i.e. do NOT ignore these)
 # --------------------------------------------------------

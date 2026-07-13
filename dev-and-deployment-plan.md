@@ -1,10 +1,10 @@
 # UCI Classroom Finder — Development & Deployment Plan
 
-Build and test everything locally first, then migrate each piece to the cloud once it works end-to-end.
+Build and ship in five phases: get the basics running end-to-end (local + deployed), add the real data and interactive map, polish the frontend experience, then two future-roadmap phases for larger additions.
 
 ---
 
-## Part 1: Local Development
+## Part 1: Basics to Setup
 
 ### 1. Environment setup
 - Node.js + npm, Docker Desktop, Supabase CLI (`npm install -g supabase`)
@@ -12,89 +12,108 @@ Build and test everything locally first, then migrate each piece to the cloud on
 
 ### 2. Local database
 - `supabase init` then `supabase start` — spins up Postgres, realtime, and auth locally in Docker, no cloud account needed yet
-- Design tables: `rooms`, `schedule_cache`, `claims` (who claimed, timestamp, auto-expire)
+- Design tables: `rooms`, `schedule_cache` (the `claims` table is Phase 4 — see Future Changes)
 - Migrations via `supabase/migrations` so schema is portable to the cloud later
 
-### 3. AnteaterAPI sync script
-- Standalone Node/Python script that fetches the registrar schedule and writes "official availability" into `schedule_cache`
-- Run manually or with `setInterval`/local cron while developing the parsing logic
-- Iterate fast without waiting on deploys
-
-### 4. Frontend
+### 3. Basic frontend shell
 - Next.js pages consuming local Supabase via `@supabase/supabase-js` pointed at `http://localhost:54321`
-- Leaflet map with UCI building coordinates, colored markers for room status
-- Browser Geolocation API for "live location" (works fine on localhost as a secure context)
+- Leaflet map with UCI building coordinates and static/placeholder markers, just to prove the map renders
 
-### 5. Realtime claiming
-- Use Supabase's local realtime channel to subscribe to `claims` table changes
-- Test with two browser tabs to simulate two users claiming rooms
+### 4. Get the pipeline live early
+- Create the Supabase cloud project and a Vercel project now, even with placeholder data — connect the GitHub repo to Vercel (auto-deploys on push), push local migrations (`supabase link --project-ref <ref>` then `supabase db push`)
+- Add environment variables in Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Goal: a blank map is live on a real `*.vercel.app` URL before building any real features, so deployment isn't a mystery saved for the end
 
-### 6. Discord bot
-- `node bot.js` running locally, connects to Discord gateway directly from your machine
-- Writes announcement data into the local Supabase Postgres
-
-### 7. Multi-device / mobile testing
-- Use `ngrok http 3000` (or your LAN IP) to test live location while walking around campus on your phone, hitting your local dev server
-
-### 8. Exit criteria for "ready to deploy"
-- Schema stable, sync job reliable, realtime claiming works across devices, timer logic correct
+### 5. Exit criteria
+- Local dev loop works, blank map deployed and reachable on Vercel, schema pushed to cloud Supabase
 
 ---
 
-## Part 2: Cloud Deployment
+## Part 2: Interactive Features + Data
 
-### 1. Database & Realtime — Supabase (Cloud)
-- Create a Supabase project (free tier: 500MB Postgres, realtime included)
-- Push local migrations: `supabase link --project-ref <ref>` then `supabase db push`
-- Move `rooms`, `schedule_cache`, and `claims` tables over as-is — no schema changes needed if local dev used Supabase CLI
-- Set Row Level Security (RLS) policies:
-  - Public read access for `rooms` and `schedule_cache`
-  - Restrict writes to `claims` to authenticated UCI users (optional, via Supabase Auth + email domain check)
-- Grab the project's `SUPABASE_URL` and `SUPABASE_ANON_KEY` for the frontend
+### 1. AnteaterAPI sync
+- Standalone Node/Python script that fetches the registrar schedule and writes "official availability" into `schedule_cache`
+- Run manually / on an interval while developing the parsing logic, then move into `/scripts/sync-schedule.js` and schedule via a GitHub Actions cron (`.github/workflows/sync.yml`, e.g. every 5–10 min) hitting the cloud Supabase instance with a service-role key (stored as a GitHub Secret, never exposed client-side)
+- Alternative: Supabase Edge Functions with `pg_cron` if you'd rather keep it inside Supabase instead of GitHub
 
-### 2. Frontend + API Routes — Vercel
-- Connect GitHub repo to Vercel (auto-deploys on push)
-- Add environment variables in Vercel dashboard:
-  - `NEXT_PUBLIC_SUPABASE_URL`
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- Swap local Supabase URL for the cloud project URL
-- Vercel free tier covers hosting, HTTPS, and CDN — good fit for Next.js
+### 2. Live schedule dashboard
+- Map markers colored by real availability pulled from `schedule_cache`, not placeholders
+- Click a building/room to see its full-day availability and the gaps between classes
 
-### 3. AnteaterAPI Sync Job — GitHub Actions (cron)
-- Move the local sync script into `/scripts/sync-schedule.js`
-- Add a GitHub Actions workflow (`.github/workflows/sync.yml`) running every 5–10 minutes:
-  ```yaml
-  on:
-    schedule:
-      - cron: '*/5 * * * *'
-  ```
-- Script connects to the cloud Supabase instance using a service-role key (stored as a GitHub Secret, never exposed client-side)
-- Alternative: Supabase Edge Functions with `pg_cron` if you want everything inside Supabase instead of GitHub
+### 3. Interactivity
+- Search/filter by building
 
-### 4. Discord Bot — Railway or Fly.io
-- Discord bots need a persistent connection, so they can't run as serverless functions
-- Deploy `bot.js` to Railway (free tier) or Fly.io (free allowance)
-- Set `DISCORD_TOKEN` and Supabase service key as environment secrets on the platform
-- Bot writes directly into the cloud `claims`/`schedule_cache` tables
+### 4. RLS
+- Public read access for `rooms` and `schedule_cache` in Supabase — no writes needed yet since claims are Phase 4
 
-### 5. Maps
-- Leaflet + OpenStreetMap tiles — no hosting change needed, works identically in prod
-- If switching to Mapbox for nicer styling, add `MAPBOX_TOKEN` as a Vercel env variable and watch the free-tier usage cap
+### 5. Exit criteria
+- Real UCI schedule data flowing into the live deployed map, refreshing on the cron schedule, no manual data entry needed
 
-### 6. Domain & HTTPS
-- Vercel provides a free `*.vercel.app` subdomain with HTTPS by default
-- Optional: buy a custom domain and point it at Vercel (not required for geolocation — Vercel's HTTPS already satisfies that)
+---
 
-### 7. Monitoring & limits to watch
-- Supabase free tier: 500MB database, limited monthly realtime connections — fine for campus scale, monitor as adoption grows
-- GitHub Actions: 2,000 free minutes/month on public repos — a 5-min cron job uses minimal minutes
-- Railway/Fly.io free tier: usually capped at a small number of always-on hours/month — check current limits before committing the bot here
+## Part 3: Polishing Frontend Features
 
-### 8. Migration checklist
-- [ ] Push Supabase migrations to cloud project
-- [ ] Set RLS policies
-- [ ] Update frontend env vars, deploy to Vercel
-- [ ] Move sync script to GitHub Actions with secrets configured
-- [ ] Deploy Discord bot to Railway/Fly.io
-- [ ] Test full pipeline end-to-end on real UCI wifi/mobile data
+### 1. PWA
+- Web manifest + service worker so the app is installable via "Add to Home Screen"; single Next.js codebase serves both desktop and mobile
+
+### 2. Location
+- Browser Geolocation API for opt-in "live location" (works on localhost as a secure context; needs real HTTPS — which Vercel provides by default — in production)
+- "Nearest available classroom" layered on top of the map, not gating the core experience
+- Test with `ngrok http 3000` (or your LAN IP) while walking around campus on a phone against the local dev server, then verify on the real Vercel deployment
+
+### 3. Timer
+- Countdown showing time left until the next class in a given room, shown in the per-room dashboard view
+
+### 4. Visual/UX polish
+- Responsive layout pass, loading/error states for the map and sync failures, general styling pass
+- Optional: swap Leaflet/OpenStreetMap for Mapbox if nicer styling is wanted (`MAPBOX_TOKEN` as a Vercel env var — watch the free-tier usage cap)
+
+### 5. Launch checklist
+- [ ] Schedule sync reliable and monitored (GitHub Actions: 2,000 free minutes/month on public repos — a 5-min cron uses very little)
+- [ ] Supabase free-tier limits checked (500MB DB, connection limits) against expected campus-scale usage
+- [ ] PWA installs correctly on iOS/Android
 - [ ] Soft-launch to a small group before wider rollout
+
+---
+
+## Part 4: Future Changes
+
+Claims feature — a live "I am here" layer on top of the schedule. See `architecture-decisions.md` for full design rationale; summary below.
+
+### 1. Schema
+- New `claims` table: room, slot (1-hour, up to 1 week in advance), user, timestamp, auto-expire at slot end
+
+### 2. Auth
+- Supabase magic-link email, restricted to `@uci.edu` addresses — scoped only to the claim action; browsing stays open to everyone
+
+### 3. Realtime
+- Supabase Realtime subscription on the `claims` table so a claim/expiry propagates to every open client instantly, no polling
+- Schedule layer stays on periodic fetch — don't spend realtime connection budget there
+
+### 4. RLS
+- Public read on `claims`, writes restricted to authenticated `@uci.edu` users
+
+### 5. Open design questions
+- Per-user cap on active/future claims (no-show/squatting risk from week-ahead reservations)
+- Cancellation path for releasing a future claim before its slot arrives
+
+---
+
+## Part 5: Bigger Future Changes
+
+Discord bot — pulls events from club Discords and marks classrooms as busy during those events.
+
+### 1. Bot service
+- Discord bots need a persistent connection, so they can't run as a Vercel serverless function
+- `node bot.js`, deployed to Railway (free tier) or Fly.io (free allowance) — develop locally first, connecting to the Discord gateway directly from your machine
+
+### 2. Data flow
+- Bot writes directly into the cloud `schedule_cache`/`claims` tables using a Supabase service key, stored as a platform env secret
+
+### 3. Deployment
+- Set `DISCORD_TOKEN` and the Supabase service key as environment secrets on Railway/Fly.io
+- Check current free-tier always-on hour limits before committing the bot to either platform
+
+### 4. Other larger-scope ideas (unscoped, revisit later)
+- Multi-campus support beyond UCI
+- Native mobile app, if PWA limitations (e.g. iOS background location) become a real blocker
