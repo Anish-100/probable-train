@@ -17,7 +17,9 @@ Build and ship in five phases: get the basics running end-to-end (local + deploy
 
 ### 3. Basic frontend shell
 - Next.js pages consuming local Supabase via `@supabase/supabase-js` pointed at `http://localhost:54321`
-- Leaflet map with UCI building coordinates and static/placeholder markers, just to prove the map renders
+- **MapLibre GL JS** map (chosen over Leaflet to keep a path to 3D — see to-do) with UCI building coordinates and static markers, just to prove the map renders
+  - Start in **2D** using an inline OpenStreetMap raster style — no map-provider token needed, works immediately
+  - **TODO (later, Part 3 polish): upgrade to 3D.** Swap the OSM raster style for a vector style with building-height data (free MapTiler key) to get tilt/pitch + extruded 3D campus buildings. Same library, so it's a style swap, not a rewrite.
 
 ### 4. Get the pipeline live early
 - Create the Supabase cloud project and a Vercel project now, even with placeholder data — connect the GitHub repo to Vercel (auto-deploys on push), push local migrations (`supabase link --project-ref <ref>` then `supabase db push`)
