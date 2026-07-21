@@ -17,6 +17,33 @@ Scope: a map + dashboard showing classroom availability from the official schedu
 
 ---
 
+## Data model: the "busy-source" pattern
+
+The schema is built around one idea: **`rooms` is the complete universe of rooms, and everything else only ever marks a room as *busy*.** Availability is never stored — it is computed as a subtraction:
+
+```
+available rooms  =  all rooms  −  rooms with an active busy-row right now
+```
+
+A room is available *now* only if **no** busy-row from **any** source covers the current day/time for it. This mirrors the claims-layer decision below (claims always make a room *more* occupied, never contradict a class) — so there is never a conflict to resolve, just a union of busy-sources.
+
+### Tables (base build)
+- **`buildings`** — static reference data; `code` (e.g. `DBH`) is the registrar's natural key. Map coordinates (lat/lng) live here because the map plots **one pin per building**, not per room.
+- **`rooms`** — every room; `(building_id, room_number)` is the natural key. This is the set the availability query subtracts from.
+- **`class_meetings`** — busy-source #1. Scheduled classes, synced from the Anteater API. **One row per (class, day)**: `MWF 10–10:50` becomes 3 rows keyed on `day_of_week` + `start_time`/`end_time`. This is the single most important modeling choice — it makes the core "is room X free now?" query a plain `WHERE` clause with no array unpacking, and availability is the query the whole app runs constantly.
+- **`club_events`** — busy-source #2. Same "room occupied for a time range" shape, but tied to a specific calendar **`date`** (one-off) rather than a recurring weekday. Populated later by the Discord bot (dev plan Part 5).
+
+### Why separate tables instead of one `occupancies` table
+Classes recur weekly (`day_of_week`); club events are one-off (`event_date`); claims (Phase 2) are authored live by users. Folding them together leaves half the columns null per row. Keeping them separate — each answering the same "does any row cover *now*?" question — is cleaner. The availability query `NOT EXISTS (class_meetings) AND NOT EXISTS (club_events)` simply gains a third `AND NOT EXISTS (claims)` when Phase 2 lands.
+
+### Keys
+Primary keys are `bigint generated always as identity` (simple, readable; availability data isn't sensitive). The load-bearing key on each table is the **natural/business key** (`buildings.code`, `rooms(building_id, room_number)`) — that's what the sync script upserts against so a 5-minute cron never creates duplicates.
+
+### RLS
+Every table ships with RLS enabled and a public `SELECT`-only policy from the start. The app is read-only to the public; all writes go through the service-role key in the sync script. This bakes in dev-plan Part 2 Step 4's "public read" intent up front rather than leaving a freshly-pushed cloud table world-writable via the anon key.
+
+---
+
 ## Future roadmap: claims feature (Phase 2)
 
 Deferred out of the base implementation — the map/schedule MVP should ship and work end-to-end first.
