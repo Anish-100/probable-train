@@ -17,6 +17,23 @@ Scope: a map + dashboard showing classroom availability from the official schedu
 
 ---
 
+## Frontend stack: Vite React + Node/Express (not Next.js)
+
+**Decision (2026-07-22):** replace the initial Next.js scaffold with a classic three-tier stack — a **Vite + React** browser app, a small **Node/Express** API, and Supabase as the database.
+
+**Why:** the project doubles as a way to *learn* frontend/React fundamentals. Next.js hides the two things most worth understanding — the client/server boundary (Server vs Client Components) and how the app fetches data (it dissolves the HTTP call into "just query the DB in a component"). The three-tier split makes both explicit and separately testable:
+
+```
+[ React app in browser ]  --HTTP fetch-->  [ Node/Express API ]  --query-->  [ Supabase (Postgres) ]
+      (Vite + React)                          (routes you write)                (unchanged)
+```
+
+**Trade-off accepted:** two things to run and deploy instead of one, in exchange for a stack with almost no hidden magic. The Node/Express server also becomes the natural home for the AnteaterAPI sync (dev plan Part 2) and anticipates the separate-Node-service ideas already in Part 5.
+
+**Unchanged:** the database, migrations, and the busy-source data model below are stack-independent and carry over as-is.
+
+---
+
 ## Data model: the "busy-source" pattern
 
 The schema is built around one idea: **`rooms` is the complete universe of rooms, and everything else only ever marks a room as *busy*.** Availability is never stored — it is computed as a subtraction:

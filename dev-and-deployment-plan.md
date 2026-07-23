@@ -15,11 +15,18 @@ Build and ship in five phases: get the basics running end-to-end (local + deploy
 - Design tables: `rooms`, `schedule_cache` (the `claims` table is Phase 4 — see Future Changes)
 - Migrations via `supabase/migrations` so schema is portable to the cloud later
 
-### 3. Basic frontend shell
-- Next.js pages consuming local Supabase via `@supabase/supabase-js` pointed at `http://localhost:54321`
-- **MapLibre GL JS** map (chosen over Leaflet to keep a path to 3D — see to-do) with UCI building coordinates and static markers, just to prove the map renders
-  - Start in **2D** using an inline OpenStreetMap raster style — no map-provider token needed, works immediately
+### 3. Basic frontend shell — three-tier (Vite React + Node/Express + Supabase)
+
+Stack changed from Next.js to a plain three-tier setup so the client/server boundary and data-fetching are explicit and learnable (see `architecture-decisions.md` → "Frontend stack"). Built teach-first, in small steps.
+
+- **Frontend** — a **Vite + React** app (`frontend/`). React fundamentals: components, `useState`, `useEffect`, and an explicit `fetch()` to the backend.
+- **Backend** — a small **Node/Express** API (`backend/`) exposing routes like `GET /api/buildings` that query Supabase with `@supabase/supabase-js`. Also the future home of the AnteaterAPI sync.
+- **Database** — Supabase, unchanged (local at `http://127.0.0.1:54321`).
+- **Map** — **MapLibre GL JS** (chosen over Leaflet to keep a path to 3D), rendering UCI building markers.
+  - Start in **2D** using an inline OpenStreetMap raster style — no map-provider token needed, works immediately.
   - **TODO (later, Part 3 polish): upgrade to 3D.** Swap the OSM raster style for a vector style with building-height data (free MapTiler key) to get tilt/pitch + extruded 3D campus buildings. Same library, so it's a style swap, not a rewrite.
+
+> Note: the original Next.js scaffold under `web/` is being retired in favor of `frontend/` + `backend/`. It remains recoverable in git history.
 
 ### 4. Get the pipeline live early
 - Create the Supabase cloud project and a Vercel project now, even with placeholder data — connect the GitHub repo to Vercel (auto-deploys on push), push local migrations (`supabase link --project-ref <ref>` then `supabase db push`)
