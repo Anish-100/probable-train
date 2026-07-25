@@ -38,7 +38,7 @@ const OSM_STYLE = {
   layers: [{ id: 'osm-tiles', type: 'raster', source: 'osm' }],
 }
 
-function MapView() {
+function MapView({ buildings }) {
   // TWO refs doing two different jobs.
   //
   // A ref is a box whose `.current` you can read and write WITHOUT triggering a
@@ -75,6 +75,42 @@ function MapView() {
       mapRef.current = null
     }
   }, []) // [] = build the map once, on mount
+
+  // SECOND effect: the markers.
+  //
+  // Why not just add them inside the effect above? Because the two answer
+  // different questions about WHEN. The map is built once and never again — [].
+  // The markers depend on `buildings`, which arrives later (the fetch in App.jsx
+  // hasn't resolved on first render) and could change again. So this effect is
+  // keyed to [buildings] and re-runs whenever that array is replaced.
+  //
+  // Effects run top-to-bottom, so by the time this one fires on mount, the
+  // effect above has already put a map in mapRef.
+  useEffect(() => {
+    if (!mapRef.current) return
+
+    // A Marker is a plain DOM element MapLibre positions over the canvas — not
+    // part of the map "style". That's why we can add them immediately without
+    // waiting for tiles to load.
+    const markers = buildings.map((building) =>
+      new maplibregl.Marker()
+        // LONGITUDE FIRST — and our DB columns are the other way round, so this
+        // line reads "backwards" on purpose. Get it wrong and every pin lands
+        // off the coast of Africa.
+        .setLngLat([building.longitude, building.latitude])
+        .setPopup(
+          new maplibregl.Popup({ offset: 25 }).setText(
+            `${building.code} — ${building.name}`,
+          ),
+        )
+        .addTo(mapRef.current),
+    )
+
+    // Cleanup again — and here the need is obvious. Without it, every re-run
+    // would ADD a fresh set of pins on top of the old ones, stacking duplicates
+    // invisibly. We remove exactly the markers this run created.
+    return () => markers.forEach((marker) => marker.remove())
+  }, [buildings])
 
   // React renders exactly this and nothing more: one empty div. Every pixel you
   // actually see inside it was put there by MapLibre.

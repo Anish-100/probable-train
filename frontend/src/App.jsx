@@ -71,7 +71,7 @@ function App() {
           ))}
         </ul>
 
-        <MapView />
+        <MapView buildings={buildings} />
       </div>
     </main>
   )
