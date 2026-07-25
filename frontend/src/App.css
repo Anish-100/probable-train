@@ -11,6 +11,38 @@
   color: var(--text);
 }
 
+/* MapLibre sizes its canvas to fill this container. An empty <div> has a height
+   of ZERO, so without an explicit height the map builds fine, fetches tiles
+   fine, and renders 0 pixels tall — a "working" map you cannot see. This is the
+   single most common MapLibre setup bug, and it looks exactly like a broken
+   install. */
+.map {
+  height: 500px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+/* Two columns: building list (fixed width) | map (takes the rest).
+   `1fr` means "one share of the LEFTOVER space" — so the map absorbs whatever
+   is left after the 340px column and the gap are subtracted. That's why the map
+   grows when you widen the window but the list doesn't.
+   `align-items: start` stops the list stretching to the map's full height. */
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Below 800px there isn't room for two columns, so collapse to one and let them
+   stack. A single breakpoint is enough here. */
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Strip the default bullets/indent off the <ul> */
 .building-list {
   list-style: none;

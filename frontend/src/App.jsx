@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import BuildingCard from './BuildingCard.jsx'
+import MapView from './MapView.jsx'
 import './App.css'
 
 // Where the backend lives. Hardcoded for now; when we deploy we'll move this
@@ -56,15 +57,22 @@ function App() {
       <h1>UCI Classroom Finder</h1>
       <p className="subtitle">{buildings.length} buildings loaded from the API</p>
 
-      <ul className="building-list">
-        {buildings.map((building) => (
-          <BuildingCard
-            key={building.id}
-            code={building.code}
-            name={building.name}
-          />
-        ))}
-      </ul>
+      {/* Two columns. Grid fills its cells in DOM order, left to right — so the
+          list is written FIRST because it appears on the left. Swap these two
+          children and the columns swap, with no CSS change at all. */}
+      <div className="layout">
+        <ul className="building-list">
+          {buildings.map((building) => (
+            <BuildingCard
+              key={building.id}
+              code={building.code}
+              name={building.name}
+            />
+          ))}
+        </ul>
+
+        <MapView />
+      </div>
     </main>
   )
 }
