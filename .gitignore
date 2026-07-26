@@ -31,6 +31,7 @@ Thumbs.db
 *.log
 *.sql
 *.sqlite
+/backend/fixtures/
 
 # ignore compiled files
 *.com
