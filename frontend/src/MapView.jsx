@@ -20,11 +20,7 @@ const UCI_CENTER = [-117.8443, 33.6459]
 // A "style" tells MapLibre what to draw. Usually this is a URL to a hosted style
 // JSON, and usually that needs an API token. We inline a minimal one instead: a
 // single raster source pointing straight at OpenStreetMap's tile server. No
-// token, no account, no billing.
-//
-// Later, swapping this object for a MapTiler vector style URL is what unlocks
-// 3D extruded buildings — and nothing else in this file has to change. That
-// swap-ability is the entire reason we picked MapLibre over Leaflet.
+// token, no account, no billing.1
 const OSM_STYLE = {
   version: 8,
   sources: {
