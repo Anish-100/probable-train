@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import BuildingCard from './BuildingCard.jsx'
-import MapView from './MapView.jsx'
+import MapView from './MapView.jsx' 
+import ZotRoom from './components/ZotRoom.jsx'
 import './App.css'
 
 // Where the backend lives. Hardcoded for now; when we deploy we'll move this
@@ -50,7 +51,12 @@ function App() {
   // While the three states resolve, render different UI for each. Returning
   // early keeps each case simple.
   if (loading) return <main className="app"><p>Loading buildings…</p></main>
-  if (error) return <main className="app"><p>Error loading buildings: {error}</p></main>
+  if (error) return (
+  <main className="app">
+    <p>Error loading buildings: {error}</p>
+    <ZotRoom />
+  </main>
+)
 
   return (
     <main className="app">
@@ -73,6 +79,8 @@ function App() {
 
         <MapView buildings={buildings} />
       </div>
+
+     <ZotRoom /> 
     </main>
   )
 }
