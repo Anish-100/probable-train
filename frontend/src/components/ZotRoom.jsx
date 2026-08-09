@@ -1,35 +1,37 @@
 import { useState } from "react";
 import { fetchBuildingSchedule } from "../api";
+import ZotRoomMap from "./ZotRoomMap";
 
 // ---------------------------------------------------------------------------
-// ZotRoom - finding empty classrooms at UCI
+// ZotRoom - find empty classrooms at UCI
 //
-// This component talks to OUR backend (GET /api/schedule), not the Anteater
-// API directly. The backend/sync script is responsible for pulling WebSoc
-// data and cleaning it up into schedule_cache. By the time it gets here, we
-// expect each meeting row to already look like:
+// Talks to Anish's backend (GET /api/schedule), not the Anteater API directly.
+// Each meeting row is expected to look like:
 //   { room, days: ["M","W"], start_min, end_min, course, section_type, instructor }
 // where start_min/end_min are minutes since midnight (e.g. 9:00am = 540).
 //
-// Until Tunish's backend exists, this falls into a tiny demo dataset so the
-// UI is still something.
+
 // ---------------------------------------------------------------------------
 
 const BUILDINGS = [
-  { code: "DBH", name: "Donald Bren Hall" },
-  { code: "ICS", name: "ICS Building" },
-  { code: "ALP", name: "Anteater Learning Pavilion" },
-  { code: "HH", name: "Humanities Hall" },
-  { code: "HIB", name: "Humanities Instructional Building" },
-  { code: "SSL", name: "Social Sciences Lab" },
-  { code: "SST", name: "Social Science Tower" },
-  { code: "RH", name: "Rowland Hall" },
-  { code: "PCB", name: "Physical Sciences Classroom Building" },
-  { code: "PSLH", name: "Physical Sciences Lecture Hall" },
-  { code: "MPAA", name: "Multipurpose Science & Tech Bldg" },
-  { code: "ET", name: "Engineering Tower" },
-  { code: "EH", name: "Engineering Hall" },
+  { code: "DBH", name: "Donald Bren Hall", lat: 33.6428, lng: -117.8443 },
+  { code: "ICS", name: "ICS Building", lat: 33.6432, lng: -117.8421 },
+  { code: "ALP", name: "Anteater Learning Pavilion", lat: 33.6461, lng: -117.8427 },
+  { code: "HH", name: "Humanities Hall", lat: 33.6417, lng: -117.8441 },
+  { code: "HIB", name: "Humanities Instructional Building", lat: 33.6415, lng: -117.8436 },
+  { code: "SSL", name: "Social Sciences Lab", lat: 33.6409, lng: -117.8425 },
+  { code: "SST", name: "Social Science Tower", lat: 33.6407, lng: -117.8422 },
+  { code: "RH", name: "Rowland Hall", lat: 33.6412, lng: -117.8410 },
+  { code: "PCB", name: "Physical Sciences Classroom Building", lat: 33.6440, lng: -117.8410 },
+  { code: "PSLH", name: "Physical Sciences Lecture Hall", lat: 33.6438, lng: -117.8407 },
+  { code: "MPAA", name: "Multipurpose Science & Tech Bldg", lat: 33.6454, lng: -117.8443 },
+  { code: "ET", name: "Engineering Tower", lat: 33.6440, lng: -117.8378 },
+  { code: "EH", name: "Engineering Hall", lat: 33.6437, lng: -117.8382 },
 ];
+
+// Fallback center (roughly the middle of campus) used when someone types a
+// custom building code we don't have coordinates for.
+const CAMPUS_CENTER = { lat: 33.6405, lng: -117.8443 };
 
 const DAYS = [
   { token: "M", label: "Monday" },
@@ -54,7 +56,7 @@ function minutesToLabel(mins) {
   return `${h12}:${String(m).padStart(2, "0")} ${period}`;
 }
 
-// --- small fallback dataset, used only until the backend exists -----------
+
 const DEMO_MEETINGS = [
   {
     room: "1400",
@@ -101,6 +103,7 @@ export default function ZotRoom() {
   const [openRoom, setOpenRoom] = useState(null);
 
   const buildingCode = useCustomBuilding ? customBuilding.trim().toUpperCase() : building;
+  const buildingInfo = BUILDINGS.find((b) => b.code === buildingCode);
 
   async function handleSearch() {
     if (!buildingCode) {
@@ -143,6 +146,10 @@ export default function ZotRoom() {
   });
   const busyRooms = allRooms.filter((r) => !emptyRooms.includes(r));
 
+  // Map marker status: "unknown" before a search has run, otherwise
+  // "empty" or "busy" depending on whether we found any open rooms.
+  const mapStatus = !meetings ? "unknown" : emptyRooms.length > 0 ? "empty" : "busy";
+
   return (
     <div className="min-h-screen bg-[#f7f7f5] text-[#0a2647]">
       <div className="max-w-3xl mx-auto px-4 py-8">
@@ -155,6 +162,7 @@ export default function ZotRoom() {
           </p>
         </header>
 
+        {/* --- search controls --- */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -253,6 +261,23 @@ export default function ZotRoom() {
           )}
         </div>
 
+        {/* --- map --- */}
+        <div className="mt-4">
+          <ZotRoomMap
+            lat={buildingInfo?.lat ?? CAMPUS_CENTER.lat}
+            lng={buildingInfo?.lng ?? CAMPUS_CENTER.lng}
+            buildingCode={buildingCode}
+            status={mapStatus}
+            emptyCount={emptyRooms.length}
+          />
+          {!buildingInfo && (
+            <p className="text-xs text-slate-400 mt-1">
+              No saved coordinates for "{buildingCode}" -- showing campus center instead.
+            </p>
+          )}
+        </div>
+
+        {/* --- results --- */}
         {meetings && (
           <div className="mt-6 space-y-6">
             {usedDemoData && (
