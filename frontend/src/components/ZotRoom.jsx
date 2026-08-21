@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { fetchBuildingSchedule } from "../api";
+import { useState,useEffect } from "react";
+import { fetchBuildingSchedule, fetchBuildings } from "../api";
 import ZotRoomMap from "./ZotRoomMap";
 
 // ---------------------------------------------------------------------------
@@ -29,6 +29,26 @@ const BUILDINGS = [
   { code: "EH", name: "Engineering Hall", lat: 33.6437, lng: -117.8382 },
 ];
 
+function BuildingList(){
+  const[buildings, setBuildings] = useState([]);
+  useEffect(()=> {
+    fetchBuildings()
+    .then(setBuildings)
+    .catch(err => console.log(err))
+  },[])
+
+  return (
+    <ul>
+      {buildings.map((b) => (
+      <option key={b.code} value={b.code}>
+        {b.code} — {b.name}
+      </option>
+      ))}
+    </ul>
+  )
+
+
+}
 // Fallback center (roughly the middle of campus) used when someone types a
 // custom building code we don't have coordinates for.
 const CAMPUS_CENTER = { lat: 33.6405, lng: -117.8443 };
@@ -175,11 +195,7 @@ export default function ZotRoom() {
                   value={building}
                   onChange={(e) => setBuilding(e.target.value)}
                 >
-                  {BUILDINGS.map((b) => (
-                    <option key={b.code} value={b.code}>
-                      {b.code} — {b.name}
-                    </option>
-                  ))}
+                <BuildingList/>
                 </select>
               ) : (
                 <input

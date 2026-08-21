@@ -19,7 +19,6 @@ app.get('/api/buildings', async (req, res) => {
     .order('code')                                 // ORDER BY code
 
   if (error) {
-    // Log the real error server-side; send a clean 500 to the client.
     console.error('buildings query failed:', error.message)
     return res.status(500).json({ error: 'Failed to load buildings' })
   }

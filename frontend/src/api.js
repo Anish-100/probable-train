@@ -7,3 +7,10 @@ export async function fetchBuildingSchedule(building, year, quarter) {
   const json = await res.json();
   return json;
 } 
+
+export async function fetchBuildings(){
+  const res = await fetch(`${API_BASE}/api/buildings`);
+  if(!res.ok) throw new Error(`Backend responded with ${res.status}`);
+  const json = await res.json();
+  return json;
+}
