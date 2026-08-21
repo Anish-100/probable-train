@@ -9,24 +9,12 @@ import './App.css'
 const API_URL = 'http://localhost:3001'
 
 function App() {
-  // THREE pieces of state — every data fetch has these three outcomes, and
-  // the UI needs to show something sensible for each:
+
   const [buildings, setBuildings] = useState([])   // the data (empty until it arrives)
   const [loading, setLoading] = useState(true)     // true while the request is in flight
   const [error, setError] = useState(null)         // set if the request fails
-
-  // useEffect runs AFTER the component has rendered to the screen.
-  //
-  // The second argument — the `[]` at the very bottom — is the "dependency
-  // array". It controls WHEN the effect re-runs:
-  //   [] (empty)     → run ONCE, after the first render. (what we want)
-  //   [x, y]         → run again whenever x or y changes.
-  //   (omitted)      → run after EVERY render. (the infinite-loop trap)
-  //
-  // We want to fetch exactly once when the page loads, so: [].
+  
   useEffect(() => {
-    // fetch() returns a Promise — a value that isn't ready yet. `async/await`
-    // lets us write "wait for this, then continue" without nested callbacks.
     async function loadBuildings() {
       try {
         const response = await fetch(`${API_URL}/api/buildings`)
@@ -62,10 +50,6 @@ function App() {
     <main className="app">
       <h1>UCI Classroom Finder</h1>
       <p className="subtitle">{buildings.length} buildings loaded from the API</p>
-
-      {/* Two columns. Grid fills its cells in DOM order, left to right — so the
-          list is written FIRST because it appears on the left. Swap these two
-          children and the columns swap, with no CSS change at all. */}
       <div className="layout">
         <ul className="building-list">
           {buildings.map((building) => (
