@@ -13,6 +13,7 @@ import ZotRoomMap from "./ZotRoomMap";
 
 // ---------------------------------------------------------------------------
 
+// Keep as a backup for now.
 const BUILDINGS = [
   { code: "DBH", name: "Donald Bren Hall", lat: 33.6428, lng: -117.8443 },
   { code: "ICS", name: "ICS Building", lat: 33.6432, lng: -117.8421 },

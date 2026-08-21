@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import BuildingCard from './BuildingCard.jsx'
-import MapView from './MapView.jsx' 
 import ZotRoom from './components/ZotRoom.jsx'
 import './App.css'
 
@@ -52,18 +50,8 @@ function App() {
       <p className="subtitle">{buildings.length} buildings loaded from the API</p>
       <div className="layout">
         <ul className="building-list">
-          {buildings.map((building) => (
-            <BuildingCard
-              key={building.id}
-              code={building.code}
-              name={building.name}
-            />
-          ))}
         </ul>
-
-        <MapView buildings={buildings} />
       </div>
-
      <ZotRoom /> 
     </main>
   )
