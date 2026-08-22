@@ -8,7 +8,7 @@ import cors from 'cors'
 import { supabase } from './db.js'
 
 const app = express()
-const PORT = 3001
+const port = 3001
 
 app.use(cors())
 
@@ -22,14 +22,21 @@ app.get('/api/buildings', async (req, res) => {
     console.error('buildings query failed:', error.message)
     return res.status(500).json({ error: 'Failed to load buildings' })
   }
-
   res.json(data)
 })
 
+// app.get('api/schedule', async(req, res)=>{
+//   console.log(req.baseUrl)
+//   const { data, error} = await supabase
+//   .from('buildings')
+//   .match({building:req.baseUrl.})
+
+// });
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
-})
+});
 
-app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`)
-})
+app.listen(port, () => {
+  console.log(`API listening on http://localhost:${port}`)
+});

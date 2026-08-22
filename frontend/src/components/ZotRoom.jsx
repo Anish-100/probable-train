@@ -14,21 +14,6 @@ import ZotRoomMap from "./ZotRoomMap";
 // ---------------------------------------------------------------------------
 
 // Keep as a backup for now.
-const BUILDINGS = [
-  { code: "DBH", name: "Donald Bren Hall", lat: 33.6428, lng: -117.8443 },
-  { code: "ICS", name: "ICS Building", lat: 33.6432, lng: -117.8421 },
-  { code: "ALP", name: "Anteater Learning Pavilion", lat: 33.6461, lng: -117.8427 },
-  { code: "HH", name: "Humanities Hall", lat: 33.6417, lng: -117.8441 },
-  { code: "HIB", name: "Humanities Instructional Building", lat: 33.6415, lng: -117.8436 },
-  { code: "SSL", name: "Social Sciences Lab", lat: 33.6409, lng: -117.8425 },
-  { code: "SST", name: "Social Science Tower", lat: 33.6407, lng: -117.8422 },
-  { code: "RH", name: "Rowland Hall", lat: 33.6412, lng: -117.8410 },
-  { code: "PCB", name: "Physical Sciences Classroom Building", lat: 33.6440, lng: -117.8410 },
-  { code: "PSLH", name: "Physical Sciences Lecture Hall", lat: 33.6438, lng: -117.8407 },
-  { code: "MPAA", name: "Multipurpose Science & Tech Bldg", lat: 33.6454, lng: -117.8443 },
-  { code: "ET", name: "Engineering Tower", lat: 33.6440, lng: -117.8378 },
-  { code: "EH", name: "Engineering Hall", lat: 33.6437, lng: -117.8382 },
-];
 
 function BuildingList(){
   const[buildings, setBuildings] = useState([]);
@@ -47,8 +32,6 @@ function BuildingList(){
       ))}
     </ul>
   )
-
-
 }
 // Fallback center (roughly the middle of campus) used when someone types a
 // custom building code we don't have coordinates for.
@@ -109,7 +92,15 @@ const DEMO_MEETINGS = [
 ];
 
 export default function ZotRoom() {
-  const [building, setBuilding] = useState(BUILDINGS[0].code);
+  const [buildings, setBuildings] = useState([]);
+  const [building, setBuilding] = useState(null)  ;
+  useEffect(()=> {
+    fetchBuildings().then(()=>{
+      setBuildings(data);
+      setBuildings(data[0]?.code??null)
+    });
+  },[]);
+  console.log(buildings)
   const [customBuilding, setCustomBuilding] = useState("");
   const [useCustomBuilding, setUseCustomBuilding] = useState(false);
   const [year, setYear] = useState("2026");
@@ -124,7 +115,7 @@ export default function ZotRoom() {
   const [openRoom, setOpenRoom] = useState(null);
 
   const buildingCode = useCustomBuilding ? customBuilding.trim().toUpperCase() : building;
-  const buildingInfo = BUILDINGS.find((b) => b.code === buildingCode);
+  const buildingInfo = buildings.find((b) => b.code === buildingCode);
 
   async function handleSearch() {
     if (!buildingCode) {
