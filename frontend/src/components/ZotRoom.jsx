@@ -13,8 +13,6 @@ import ZotRoomMap from "./ZotRoomMap";
 
 // ---------------------------------------------------------------------------
 
-// Keep as a backup for now.
-
 function BuildingList(){
   const[buildings, setBuildings] = useState([]);
   useEffect(()=> {
@@ -35,7 +33,7 @@ function BuildingList(){
 }
 // Fallback center (roughly the middle of campus) used when someone types a
 // custom building code we don't have coordinates for.
-const CAMPUS_CENTER = { lat: 33.6405, lng: -117.8443 };
+const CAMPUS_CENTER = { lat: 33.64593278673665, lng:  -117.84275397143385 };
 
 const DAYS = [
   { token: "M", label: "Monday" },
