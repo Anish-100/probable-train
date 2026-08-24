@@ -1,7 +1,3 @@
-// The backend API.
-//
-// This runs in Node — NOT in the browser. There is no `document` or `window`
-// here. Its whole job is: receive an HTTP request, send back a response.
 
 import express from 'express'
 import cors from 'cors'
