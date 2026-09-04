@@ -1,0 +1,337 @@
+{
+  "ACT": {
+    "name": "Art Culture & Technology",
+    "lat": 33.65057,
+    "lng": -117.844902
+  },
+  "AIRB": {
+    "name": "Anteater Instruction & Research Building",
+    "lat": 33.643009,
+    "lng": -117.838013
+  },
+  "AITR": {
+    "name": "Arts Instruction & Technology Resource Center",
+    "lat": 33.649773,
+    "lng": -117.843979
+  },
+  "ALP": {
+    "name": "Anteater Learning Pavilion",
+    "lat": 33.647175,
+    "lng": -117.844521
+  },
+  "ART": {
+    "name": "Art Studio",
+    "lat": 33.650162,
+    "lng": -117.844887
+  },
+  "BS3": {
+    "name": "Biological Sciences III",
+    "lat": 33.645363,
+    "lng": -117.846222
+  },
+  "CAC": {
+    "name": "Contemporary Arts Center",
+    "lat": 33.650146,
+    "lng": -117.845322
+  },
+  "COHS": {
+    "name": "Susan & Henry Samueli College of Health Sciences",
+    "lat": 33.64074907320793,
+    "lng": -117.85300013369913
+  },
+  "CRH": {
+    "name": "Croul Hall",
+    "lat": 33.643715,
+    "lng": -117.844681
+  },
+  "CTT": {
+    "name": "Claire Trevor Theatre",
+    "lat": 33.649578,
+    "lng": -117.845322
+  },
+  "DBH": {
+    "name": "Donald Bren Hall",
+    "lat": 33.643288,
+    "lng": -117.841965
+  },
+  "DRA": {
+    "name": "Drama Building",
+    "lat": 33.649738,
+    "lng": -117.845055
+  },
+  "DS": {
+    "name": "Robert Cohen Theatre & Dance Studios",
+    "lat": 33.649334,
+    "lng": -117.845573
+  },
+  "ECT": {
+    "name": "Engineering & Computing Trailer",
+    "lat": 33.644051,
+    "lng": -117.840149
+  },
+  "EDUC": {
+    "name": "Education Building",
+    "lat": 33.647308,
+    "lng": -117.835861
+  },
+  "EH": {
+    "name": "Engineering Hall",
+    "lat": 33.643799,
+    "lng": -117.841202
+  },
+  "ELF": {
+    "name": "Engineering Laboratory Facility",
+    "lat": 33.643822,
+    "lng": -117.839622
+  },
+  "ELH": {
+    "name": "Engineering Lecture Hall",
+    "lat": 33.644459,
+    "lng": -117.840736
+  },
+  "ET": {
+    "name": "Engineering Tower",
+    "lat": 33.644859,
+    "lng": -117.841202
+  },
+  "FRH": {
+    "name": "Frederick Reines Hall",
+    "lat": 33.644302,
+    "lng": -117.843452
+  },
+  "GNRF": {
+    "name": "Gillespie Neuroscience Research Facility",
+    "lat": 33.644009,
+    "lng": -117.851265
+  },
+  "HG": {
+    "name": "Humanities Gateway",
+    "lat": 33.648266,
+    "lng": -117.844406
+  },
+  "HH": {
+    "name": "Humanities Hall",
+    "lat": 33.64732852598297,
+    "lng": -117.84401988069517
+  },
+  "HHCR": {
+    "name": "Unknown",
+    "lat": null,
+    "lng": null
+  },
+  "HIB": {
+    "name": "Humanities Instructional Building",
+    "lat": 33.648476,
+    "lng": -117.843918
+  },
+  "HICF": {
+    "name": "Humanities Interim Classroom Facility",
+    "lat": 33.6469,
+    "lng": -117.84687
+  },
+  "HSLH": {
+    "name": "Howard Schneiderman Lecture Hall",
+    "lat": 33.645618,
+    "lng": -117.844666
+  },
+  "IAB": {
+    "name": "Intercollegiate Athletics Building",
+    "lat": 33.648296,
+    "lng": -117.845695
+  },
+  "ICS": {
+    "name": "Information & Computer Science",
+    "lat": 33.644344,
+    "lng": -117.84182
+  },
+  "ICS2": {
+    "name": "Information & Computer Science 2",
+    "lat": 33.643913,
+    "lng": -117.841713
+  },
+  "ISEB": {
+    "name": "Interdisciplinary Science and Engineering Building",
+    "lat": 33.642883,
+    "lng": -117.843987
+  },
+  "KH": {
+    "name": "Krieger Hall",
+    "lat": 33.647736,
+    "lng": -117.843521
+  },
+  "LAW": {
+    "name": "Law Building",
+    "lat": 33.64687,
+    "lng": -117.835938
+  },
+  "MAB": {
+    "name": "Mesa Arts Building",
+    "lat": 33.650208,
+    "lng": -117.846367
+  },
+  "MDE": {
+    "name": "McDonnell Douglas Engineering Auditorium",
+    "lat": 33.643967,
+    "lng": -117.840752
+  },
+  "MH": {
+    "name": "McGaugh Hall",
+    "lat": 33.645271,
+    "lng": -117.844887
+  },
+  "MM": {
+    "name": "Music & Media Building",
+    "lat": 33.649456,
+    "lng": -117.84446
+  },
+  "MOB": {
+    "name": "Mesa Office Building",
+    "lat": 33.651299,
+    "lng": -117.846451
+  },
+  "MPAA": {
+    "name": "Multipurpose Academic & Administrative Building",
+    "lat": 33.647156,
+    "lng": -117.837013
+  },
+  "MSTB": {
+    "name": "Multipurpose Science & Technology Building",
+    "lat": 33.64209,
+    "lng": -117.844467
+  },
+  "NS1": {
+    "name": "Natural Sciences I",
+    "lat": 33.644348,
+    "lng": -117.845886
+  },
+  "NS2": {
+    "name": "Natural Sciences II",
+    "lat": 33.644054,
+    "lng": -117.845413
+  },
+  "PCB": {
+    "name": "Parkview Classroom Building",
+    "lat": 33.644463,
+    "lng": -117.842743
+  },
+  "PH": {
+    "name": "Plumwood House",
+    "lat": 33.644718,
+    "lng": -117.851295
+  },
+  "PSCB": {
+    "name": "Physical Sciences Classroom Building",
+    "lat": 33.643417,
+    "lng": -117.843544
+  },
+  "PSLH": {
+    "name": "Physical Sciences Lecture Hall",
+    "lat": 33.643456,
+    "lng": -117.844009
+  },
+  "PSTU": {
+    "name": "William J. Gillespie Performance Studios",
+    "lat": 33.650654,
+    "lng": -117.845261
+  },
+  "REC": {
+    "name": "Rockwell Engineering Center",
+    "lat": 33.643944,
+    "lng": -117.840523
+  },
+  "RH": {
+    "name": "Rowland Hall",
+    "lat": 33.644531,
+    "lng": -117.844162
+  },
+  "SB1": {
+    "name": "Merage School of Business",
+    "lat": 33.647072,
+    "lng": -117.838158
+  },
+  "SB2": {
+    "name": "Merage School of Business II",
+    "lat": 33.64669,
+    "lng": -117.838112
+  },
+  "SBSG": {
+    "name": "Social & Behavioral Sciences Gateway",
+    "lat": 33.647488,
+    "lng": -117.839165
+  },
+  "SCS": {
+    "name": "Sculpture & Ceramic Studios",
+    "lat": 33.650276,
+    "lng": -117.844521
+  },
+  "SE": {
+    "name": "Social Ecology I",
+    "lat": 33.646194,
+    "lng": -117.838844
+  },
+  "SE2": {
+    "name": "Social Ecology II",
+    "lat": 33.64666,
+    "lng": -117.839043
+  },
+  "SH": {
+    "name": "Steinhaus Hall",
+    "lat": 33.646347,
+    "lng": -117.844887
+  },
+  "SSH": {
+    "name": "Social Science Hall",
+    "lat": 33.646236,
+    "lng": -117.840073
+  },
+  "SSL": {
+    "name": "Social Science Laboratory",
+    "lat": 33.646015,
+    "lng": -117.840019
+  },
+  "SSLH": {
+    "name": "Social Science Lecture Hall",
+    "lat": 33.647274,
+    "lng": -117.83979
+  },
+  "SSPA": {
+    "name": "Social Science Plaza A",
+    "lat": 33.647034,
+    "lng": -117.839584
+  },
+  "SSPB": {
+    "name": "Social Science Plaza B",
+    "lat": 33.647083,
+    "lng": -117.839096
+  },
+  "SST": {
+    "name": "Social Science Tower",
+    "lat": 33.646591,
+    "lng": -117.840294
+  },
+  "SSTR": {
+    "name": "Social Science Trailer",
+    "lat": 33.647007,
+    "lng": -117.840263
+  },
+  "STU4": {
+    "name": "Studio Four",
+    "lat": 33.650143,
+    "lng": -117.845749
+  },
+  "UEA": {
+    "name": "Undergraduate Education Building A",
+    "lat": 33.646496947175834,
+    "lng": -117.83732001356947
+  },
+  "WSH": {
+    "name": "Winifred Smith Hall",
+    "lat": 33.649639,
+    "lng": -117.844475
+  },
+  "YURT": {
+    "name": "Yurt Dance Studio",
+    "lat": 33.64201914028428,
+    "lng": -117.82797921686887
+  }
+}
