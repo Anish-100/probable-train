@@ -4,7 +4,7 @@ import fs from 'node:fs/promises'
 const quarter = 'Fall'
 const year = 2026
 
-const folder = '../data'
+const folder = '../data/course_data'
 async function fetch_request(quarter,year){
     const res = await fetch(`https://anteaterapi.com/v2/rest/websoc?year=${year}&quarter=${quarter}`);
     return await res.json()
