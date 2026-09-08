@@ -3,11 +3,13 @@ import path from 'node:path'
 
 
 const dataDir = path.join(import.meta.dirname,'..','data')
+const courseDataDir = path.join(import.meta.dirname,'..','data/course_data')
+
 
 const days_code = new Map([['M',1],['Tu',2],['W',3],['Th',4],['F',5]])
 
 async function uci_meetings_json(quarter, year){
-    const raw = await fs.readFile(path.join(dataDir,`${quarter}_${year}.json`), {encoding:'utf8'});
+    const raw = await fs.readFile(path.join(courseDataDir,`${quarter}_${year}.json`), {encoding:'utf8'});
     const year_data = JSON.parse(raw)
     let values = []
     for (let school of year_data.data.schools){
@@ -15,11 +17,11 @@ async function uci_meetings_json(quarter, year){
         for (let courses of dep.courses){
             for (let sections of courses.sections){
                 for (let meeting of sections.meetings){
-                    if (meeting.timeIsTBA)continue
-                    if (meeting.bldg == "TBA" || meeting.bldg == 'ON LINE') continue
+                    if (meeting.timeIsTBA) continue
                     const split_days = splitDays(meeting.days)
                     for (let day of split_days){
                         for (let bldg of meeting.bldg){
+                            if (bldg.trim()== "TBA" || bldg == 'ON LINE') continue
                             values.push({
                                 courseId: courses.courseId,
                                 startTime: meeting.startTime,
@@ -70,9 +72,3 @@ export function getAnteaterData(){
 export async function getBuildingsData(){
     return await uci_buildings_json()
 }
-getBuildingsData()
-// After meetings
-//.bldg, if bldg is "TBA" or "", skip 
-//.days
-//.startTime , under starTime, we will take "hour", "minute"
-//.endTime
