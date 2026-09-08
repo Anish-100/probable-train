@@ -108,7 +108,6 @@ async function batchExport(values){
 // const idByCode = new Map(data.map(r => [r.code, r.id]))
 // await loadIntoSupabase(await buildRoomsObject(idByCode), 'rooms')
 
-// Call when you want to insert class_meetings in relation to room_numbers
 const roomIdByCode = async ()=>{
     const {data,error} = await supabase.from('rooms').select('id,building_id, room_number')
     if(error){
@@ -128,4 +127,5 @@ const buildingIdByCode = async ()=>{
     return new Map(data.map((x)=>[x.code, x.id]))
 }
 
-await buildClassMeetings(await roomIdByCode(), await buildingIdByCode())
+// Call when you want to insert class_meetings in relation to room_numbers
+// await buildClassMeetings(await roomIdByCode(), await buildingIdByCode())
