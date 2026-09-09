@@ -7,30 +7,15 @@ import ZotRoomMap from "./ZotRoomMap";
 //
 // Talks to Anish's backend (GET /api/schedule), not the Anteater API directly.
 // Each meeting row is expected to look like:
-//   { room, days: ["M","W"], start_min, end_min, course, section_type, instructor }
-// where start_min/end_min are minutes since midnight (e.g. 9:00am = 540).
+//   { room, day: "M", start_time: "09:00:00", end_time: "09:50:00", course }
+// One row per (class, day) - "MWF" arrives as three rows, not one.
+// start_time/end_time are "HH:MM:SS"; withMinutes() adds start_min/end_min
+// (minutes since midnight) once, on arrival, so the rest of the file can do
+// plain number comparisons.
 //
 
 // ---------------------------------------------------------------------------
 
-function BuildingList(){
-  const[buildings, setBuildings] = useState([]);
-  useEffect(()=> {
-    fetchBuildings()
-    .then(setBuildings)
-    .catch(err => console.log(err))
-  },[])
-
-  return (
-    <ul>
-      {buildings.map((b) => (
-      <option key={b.code} value={b.code}>
-        {b.code} — {b.name}
-      </option>
-      ))}
-    </ul>
-  )
-}
 // Fallback center (roughly the middle of campus) used when someone types a
 // custom building code we don't have coordinates for.
 const CAMPUS_CENTER = { lat: 33.64593278673665, lng:  -117.84275397143385 };
@@ -59,44 +44,40 @@ function minutesToLabel(mins) {
 }
 
 
+// The API sends times as "HH:MM:SS" strings. Convert them to minutes once,
+// here at the boundary, rather than at each of the three places that compare
+// them - a string reaching `targetMin >= m.start_min` silently coerces to NaN,
+// which would make every comparison false and every room look empty.
+function withMinutes(rows) {
+  return rows.map((m) => ({
+    ...m,
+    start_min: timeToMinutes(m.start_time),
+    end_min: timeToMinutes(m.end_time),
+  }));
+}
+
+// Shaped exactly like the API response, so the demo path and the real path go
+// through the same withMinutes() normalization.
 const DEMO_MEETINGS = [
-  {
-    room: "1400",
-    days: ["M", "W", "F"],
-    start_min: 540,
-    end_min: 590,
-    course: "COMPSCI 161",
-    section_type: "Lec",
-    instructor: "Thornton, A.",
-  },
-  {
-    room: "1400",
-    days: ["Tu", "Th"],
-    start_min: 660,
-    end_min: 740,
-    course: "IN4MATX 43",
-    section_type: "Lec",
-    instructor: "Redmiles, D.",
-  },
-  {
-    room: "1300",
-    days: ["Tu", "Th"],
-    start_min: 780,
-    end_min: 850,
-    course: "STATS 67",
-    section_type: "Lec",
-    instructor: "Sanchez, J.",
-  },
+  { room: "1400", day: "M",  start_time: "09:00:00", end_time: "09:50:00", course: "COMPSCI 161" },
+  { room: "1400", day: "W",  start_time: "09:00:00", end_time: "09:50:00", course: "COMPSCI 161" },
+  { room: "1400", day: "F",  start_time: "09:00:00", end_time: "09:50:00", course: "COMPSCI 161" },
+  { room: "1400", day: "Tu", start_time: "11:00:00", end_time: "12:20:00", course: "IN4MATX 43" },
+  { room: "1400", day: "Th", start_time: "11:00:00", end_time: "12:20:00", course: "IN4MATX 43" },
+  { room: "1300", day: "Tu", start_time: "13:00:00", end_time: "14:10:00", course: "STATS 67" },
+  { room: "1300", day: "Th", start_time: "13:00:00", end_time: "14:10:00", course: "STATS 67" },
 ];
 
 export default function ZotRoom() {
   const [buildings, setBuildings] = useState([]);
   const [building, setBuilding] = useState(null)  ;
   useEffect(()=> {
-    fetchBuildings().then(()=>{
-      setBuildings(data);
-      setBuildings(data[0]?.code??null)
-    });
+    fetchBuildings()
+      .then((data) => {
+        setBuildings(data);
+        setBuilding(data[0]?.code ?? null);
+      })
+      .catch((err) => console.error("Failed to load buildings:", err));
   },[]);
   console.log(buildings)
   const [customBuilding, setCustomBuilding] = useState("");
@@ -127,10 +108,10 @@ export default function ZotRoom() {
 
     try {
       const data = await fetchBuildingSchedule(buildingCode, year, quarter);
-      setMeetings(data.meetings || []);
+      setMeetings(withMinutes(data));
     } catch (err) {
       console.warn("ZotRoom: backend fetch failed, using demo data:", err);
-      setMeetings(DEMO_MEETINGS);
+      setMeetings(withMinutes(DEMO_MEETINGS));
       setUsedDemoData(true);
       setError("Couldn't reach the backend, so this is showing demo data instead.");
     } finally {
@@ -150,7 +131,7 @@ export default function ZotRoom() {
   const targetMin = timeToMinutes(time);
   const emptyRooms = allRooms.filter((room) => {
     const busy = roomsByName[room].some(
-      (m) => m.days.includes(day) && targetMin >= m.start_min && targetMin < m.end_min
+      (m) => m.day === day && targetMin >= m.start_min && targetMin < m.end_min
     );
     return !busy;
   });
@@ -182,10 +163,14 @@ export default function ZotRoom() {
               {!useCustomBuilding ? (
                 <select
                   className="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm"
-                  value={building}
+                  value={building ?? ""}
                   onChange={(e) => setBuilding(e.target.value)}
                 >
-                <BuildingList/>
+                  {buildings.map((b) => (
+                    <option key={b.code} value={b.code}>
+                      {b.code} — {b.name}
+                    </option>
+                  ))}
                 </select>
               ) : (
                 <input
@@ -391,12 +376,9 @@ function RoomScheduleModal({ room, meetings, onClose }) {
           <ul className="space-y-2 max-h-80 overflow-y-auto">
             {sorted.map((m, i) => (
               <li key={i} className="text-sm border-b border-slate-100 pb-2">
-                <div className="font-medium">
-                  {m.course} · {m.section_type}
-                </div>
+                <div className="font-medium">{m.course}</div>
                 <div className="text-slate-500 text-xs">
-                  {m.days.join(", ")} · {minutesToLabel(m.start_min)}–{minutesToLabel(m.end_min)} ·{" "}
-                  {m.instructor}
+                  {m.day} · {minutesToLabel(m.start_min)}–{minutesToLabel(m.end_min)}
                 </div>
               </li>
             ))}

@@ -39,6 +39,7 @@ app.get('/api/schedule', async(req, res)=>{
   .eq('rooms.buildings.code', building.toUpperCase())
   if (error){
       console.error(`Error when fetching meetings data`)
+      return res.status(500).json({ error: 'Failed to load buildings' })
   }
   return res.json(data.map(toMeeting))
 });
