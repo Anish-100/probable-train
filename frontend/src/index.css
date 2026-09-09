@@ -1,114 +1,183 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Design tokens (day). Night is deferred, but every color in the app goes
+   through one of these names, so adding night later is a second block --
+   :root[data-theme="night"] { ... } -- and a toggle. No markup changes.
 
+   Two colors deliberately do NOT get a token, because they are chosen against
+   what is BEHIND them rather than against the theme, and are identical in both:
+     - text on the #ffd200 bar / stat is always #16202c
+     - text on the navy and blue bands is always #ffffff
+   Tokenizing those is exactly what breaks on-color foregrounds at theme swap.
+--------------------------------------------------------------------------- */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --ground: #f5f6f8;            /* page ground */
+  --sidebar: #eef3f8;           /* sidebar ground */
+  --surface: #ffffff;           /* cards, panels */
+  --map-ground: #e9edf2;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --text: #16202c;
+  --text-muted: #5d6a78;
+  --text-faint: #7b8794;
+  --text-strong-muted: #39485a;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --divider: #e3e7ed;
+  --card-border: #dce7f1;
+  --input-border: #cfdeeb;
+  --neutral-fill: #eef0f4;
+  --neutral-fill-alt: #e6ebf1;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  --accent: #0064a4;            /* UCI blue: a FILL behind white text */
+  --accent-dark: #004b7c;       /* hover, and the only blue safe as text */
+  --accent-darkest: #003354;    /* brand + week-panel bands */
+  --accent-tint: #d9eaf5;
+  --accent-tint-light: #eef6fb;
+  --accent-on-dark: #a6cde9;    /* muted text on the navy bands */
+  --signal: #ffd200;            /* UCI yellow */
+
+  /* These two get their own names because the handoff's night palette maps
+     them to DIFFERENT roles than day: a row hover is the accent tint in day
+     but the accent tint *light* in night. Reusing one token would give night
+     a pale blue hover on a dark row. */
+  --row-hover: #d9eaf5;
+  --slot-bg: #f5f6f8;          /* week-grid day columns, busy room cards */
+  /* The pill sitting ON the yellow now-bar. The bar stays #ffd200 in both
+     themes, so this cannot ride on a surface token -- and a near-white chip
+     that reads as "raised" in daylight glares out of a dark UI at night. */
+  --pill-on-signal: rgba(255, 255, 255, 0.72);
+  --pill-on-signal-hover: #ffffff;
+  --pill-on-signal-text: #16202c;
+
+  --scroll-thumb: #c3cad4;
+
+  --shadow-sm: 0 1px 2px rgba(22, 32, 44, 0.06);
+  --shadow-md: 0 6px 18px rgba(22, 32, 44, 0.09);
+  --shadow-lg: 0 18px 44px rgba(22, 32, 44, 0.16);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* ---------------------------------------------------------------------------
+   Night. Same role names, different values -- no markup changes.
+   Driven by an explicit data-theme attribute, never by prefers-color-scheme
+   alone: this is a tool used in bright daylight AND in evening study spaces,
+   so the user gets to decide.
+--------------------------------------------------------------------------- */
+:root[data-theme="night"] {
+  --ground: #0e1620;
+  --sidebar: #101a26;
+  --surface: #16212e;
+  --map-ground: #0a121a;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  --text: #eaf1f8;
+  --text-muted: #96a6b7;
+  --text-faint: #8494a4;
+  --text-strong-muted: #c6d3e0;
+
+  --divider: #25313f;
+  --card-border: #27343f;
+  --input-border: #2c3a49;
+  --neutral-fill: #1d2836;
+  --neutral-fill-alt: #223040;
+
+  --accent: #1d6fa8;
+  --accent-dark: #2a8fd4;
+  --accent-darkest: #0e3f63;
+  --accent-tint: #d9eaf5;
+  --accent-tint-light: #a6cde9;
+  --accent-on-dark: #a6cde9;
+  --signal: #ffd200;
+
+  --row-hover: #14202c;
+  --slot-bg: #101a26;
+  /* Inverted at night: a dark chip with white text, rather than the light chip
+     day uses. This is a deliberate exception to the handoff's rule that text on
+     #ffd200 is always #16202c -- the bar stays yellow at night, but a light
+     chip on it glares, so the chip goes dark and its label flips with it.
+     Because the label now changes with the theme, it needs a token; that is
+     what --pill-on-signal-text is for. */
+  --pill-on-signal: #16202c;
+  --pill-on-signal-hover: #2b3a4a;
+  --pill-on-signal-text: #ffffff;
+
+  --scroll-thumb: #39485a;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.55);
+}
+
+/* Makes the native <select> and <input type="time"> render dark. Without it
+   they stay light-on-light and are unreadable in the time editor. */
+:root[data-theme="night"] {
+  color-scheme: dark;
+}
+
+/* The one structural difference between the themes: night adds a yellow rule
+   under the brand band to keep it from dissolving into the sidebar. */
+:root[data-theme="night"] .brand-band {
+  border-bottom: 3px solid var(--signal);
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  overflow: hidden;             /* the two panes scroll, the page never does */
+  font-family: Figtree, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--ground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* Buttons do not inherit color or font by default -- they fall back to the UA's
+   `canvastext`, which renders black on dark surfaces the moment night lands. */
+button {
+  color: inherit;
+  font: inherit;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* A visible focus ring, not the browser default -- the design calls for a 2px
+   accent ring. :focus-visible (not :focus) so it appears for keyboard users
+   without ringing every mouse click. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 8px scrollbars, in tokens rather than the OS default. */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 8px;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+
+/* MapLibre ships its own square, hard-shadowed control group. */
+.maplibregl-ctrl-group {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
