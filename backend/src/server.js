@@ -16,7 +16,14 @@ const AVAILABILITY_TTL_MS = 60 * 1000     // 1 minute
 // and this data is public read-only anyway. Scoping it stops other sites from
 // running their frontend on our backend's quota. Requests with no Origin
 // header (curl, server-to-server) are unaffected.
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',')
+// Trim and drop empties: "a, b" would otherwise yield " b" with a leading
+// space, which matches no Origin header and fails CLOSED -- the browser blocks
+// every request while the server keeps answering 200 to curl.
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))   // no trailing slash; Origin never has one
+  .filter(Boolean)
+console.log('CORS allowed origins:', allowedOrigins)
 app.use(cors({origin: allowedOrigins}))
 
 // The uncached query. Throws instead of returning { data, error } so that
@@ -132,5 +139,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`API listening on http://localhost:${port}`)
+  // Not necessarily localhost: on a host, `port` comes from process.env.PORT
+  // (Render uses 10000) and sits behind their proxy, which serves 443 publicly.
+  console.log(`API listening on port ${port}`)
 });
