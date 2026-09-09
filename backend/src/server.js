@@ -5,12 +5,19 @@ import { supabase } from './db.js'
 import { getCached } from './cache.js'
 import {toMeeting, toBuilding, toDayNumber, toBusyKey} from './transform.js'
 const app = express()
-const port = 3001
+// Hosts (Render, Railway, Fly) assign a port and route to it. A hardcoded one
+// binds somewhere nothing is listening, and the deploy "succeeds" but 502s.
+const port = process.env.PORT || 3001
 
 const BUILDINGS_TTL_MS = 10 * 60 * 1000   // 10 minutes
 const AVAILABILITY_TTL_MS = 60 * 1000     // 1 minute
 
-app.use(cors())
+// CORS is a browser mechanism, not access control -- curl ignores it entirely,
+// and this data is public read-only anyway. Scoping it stops other sites from
+// running their frontend on our backend's quota. Requests with no Origin
+// header (curl, server-to-server) are unaffected.
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',')
+app.use(cors({origin: allowedOrigins}))
 
 // The uncached query. Throws instead of returning { data, error } so that
 // getCached() can tell success from failure and skip storing failures.

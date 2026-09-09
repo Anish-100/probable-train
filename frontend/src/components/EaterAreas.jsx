@@ -1,7 +1,7 @@
 import { useState } from "react"
 import Sidebar from "./Sidebar.jsx"
 import BuildingList from "./BuildingList.jsx"
-import ZotRoomMap from "./ZotRoomMap.jsx"
+import EaterAreasMap from "./EaterAreasMap.jsx"
 import CampusOverviewCard from "./CampusOverviewCard.jsx"
 import BuildingDetailPanel from "./BuildingDetailPanel.jsx"
 import RoomSchedulePanel from "./RoomSchedulePanel.jsx"
@@ -16,7 +16,7 @@ import { initialDay, initialTime } from "../lib/time.js"
 // the panes; everything else -- the filtered list, the open/busy split, the
 // week grid -- is DERIVED on render rather than stored. Availability is never
 // state, matching the repo's busy-source pattern.
-export default function ZotRoom() {
+export default function EaterAreas() {
   const [query, setQuery] = useState("")
   // Passing the FUNCTION (not initialDay()) makes React call it once on the
   // first render only. Calling it inline would re-run `new Date()` on every
@@ -66,7 +66,7 @@ export default function ZotRoom() {
       </Sidebar>
 
       <main className="relative bg-[var(--map-ground)]">
-        <ZotRoomMap building={selectedBuilding} theme={theme} />
+        <EaterAreasMap building={selectedBuilding} theme={theme} />
 
         {!selectedBuilding && !hintDismissed && (
           <CampusOverviewCard onDismiss={() => setHintDismissed(true)} />
