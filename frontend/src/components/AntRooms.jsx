@@ -22,6 +22,12 @@ export default function AntRooms() {
   const [selected, setSelected] = useState(null)      // building code, or null
   const [room, setRoom] = useState(null)              // room number, or null
   const [hintDismissed, setHintDismissed] = useState(false)
+  // "Get the panel out of my way" -- the sidebar on desktop, the sheet on
+  // mobile. NOT derivable from selected/room, so it is the one piece of panel
+  // state that is stored rather than computed. One flag serves both layouts:
+  // on desktop the list is the only way to pick a building, so being collapsed
+  // and selecting cannot happen there.
+  const [collapsed, setCollapsed] = useState(false)
 
   const {theme, toggleTheme} = useTheme()
   const {buildings, loading, error} = useBuildings()
@@ -38,13 +44,18 @@ export default function AntRooms() {
   const isMobile = useIsMobile()
 
   const shellProps = {
-    query, setQuery, day, setDay, time, setTime, timeOpen, setTimeOpen,
+    query, day, setDay, time, setTime, timeOpen, setTimeOpen,
     selected, room, setRoom, hintDismissed, setHintDismissed, theme, toggleTheme,
     visible, selectedBuilding, counts, loading, meetings, scheduleLoading, scheduleError,
     listError: error || countsError,
+    collapsed,
+    toggleCollapsed: () => setCollapsed((down) => !down),
+    // On mobile the search box floats ABOVE the sheet while the list is inside
+    // it, so typing while collapsed would filter rows you cannot see.
+    onQueryChange: (value) => { setQuery(value); setCollapsed(false) },
     // Picking a building drops the room, or the old room's schedule shows under
-    // the new building's name.
-    selectBuilding: (code) => { setSelected(code); setRoom(null) },
+    // the new building's name. It also raises the panel: you asked to see it.
+    selectBuilding: (code) => { setSelected(code); setRoom(null); setCollapsed(false) },
     closeBuilding: () => { setSelected(null); setRoom(null) },
   }
 

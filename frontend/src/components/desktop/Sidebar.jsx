@@ -11,10 +11,21 @@ import TimeEditor from "../shared/TimeEditor.jsx"
 export default function Sidebar({
   query, onQueryChange,
   day, time, timeOpen, onToggleTime, onDayChange, onTimeChange,
+  collapsed = false,
   children,
 }) {
   return (
-    <aside className="flex h-full min-h-0 flex-col bg-[var(--sidebar)]">
+    // overflow-hidden: the grid column goes to 0px when collapsed, but content
+    // does not shrink with it -- without this the search box and list spill
+    // across the map.
+    //
+    // inert: a 0px-wide pane is invisible but still focusable, so tabbing would
+    // land in a search box nobody can see. inert takes it out of the tab order
+    // and the accessibility tree in one attribute (React 19 passes it through).
+    <aside
+      inert={collapsed}
+      className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--sidebar)]"
+    >
       <div className="brand-band rounded-br-[22px] bg-[var(--accent-darkest)] px-6 pt-6 pb-[22px]">
         <div>
           {/* White on the navy band in BOTH themes -- chosen against the band,

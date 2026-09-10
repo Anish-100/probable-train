@@ -7,19 +7,24 @@ import MobileDetailSheet from "./MobileDetailSheet.jsx"
 import MobileRoomSheet from "./MobileRoomSheet.jsx"
 import { sheetHeightPx } from "../../lib/sheet.js"
 
-// The map is the ground and the sidebar is a bottom sheet. Which of the three
-// heights it rests at is derived from existing state, never stored separately.
+// The map is the ground and the sidebar is a bottom sheet. WHICH screen it
+// shows is derived from existing state and never stored; whether the user has
+// pushed it down to `peek` is the one thing that has to be stored, because no
+// combination of selected/room implies it.
 export default function MobileShell({
-  query, setQuery, day, setDay, time, setTime, timeOpen, setTimeOpen,
+  query, onQueryChange, day, setDay, time, setTime, timeOpen, setTimeOpen,
   selected, selectBuilding, room, setRoom, closeBuilding, theme, toggleTheme,
   visible, selectedBuilding, counts, loading, listError,
-  meetings, scheduleLoading, scheduleError,
+  meetings, scheduleLoading, scheduleError, collapsed, toggleCollapsed,
 }) {
   const level = !selectedBuilding ? "list" : room ? "room" : "detail"
 
   // Keeps the pin in the strip of map above the sheet. Read at render rather
-  // than stored, so a rotation re-frames on the next paint.
-  const padding = {top: 0, right: 0, left: 0, bottom: sheetHeightPx(level, window.innerHeight)}
+  // than stored, so a rotation re-frames on the next paint. Collapsing has to
+  // feed in here too, or dropping the sheet leaves the pin framed for the old
+  // height and the extra map goes unused.
+  const restingAt = collapsed ? "peek" : level
+  const padding = {top: 0, right: 0, left: 0, bottom: sheetHeightPx(restingAt, window.innerHeight)}
 
   return (
     <div className="relative h-full overflow-hidden bg-[var(--map-ground)]">
@@ -29,7 +34,7 @@ export default function MobileShell({
       {!selectedBuilding && (
         <MobileTopBar
           query={query}
-          onQueryChange={setQuery}
+          onQueryChange={onQueryChange}
           day={day}
           time={time}
           timeOpen={timeOpen}
@@ -41,10 +46,13 @@ export default function MobileShell({
 
       <BottomSheet
         level={level}
+        collapsed={collapsed}
         surface={level === "list" ? "var(--sidebar)" : "var(--surface)"}
-        // The handle only toggles where there is somewhere to go: on screen 1
-        // it swaps between more map and more list.
-        onToggleLevel={level === "list" ? undefined : closeBuilding}
+        // The handle moves the sheet at every level; the X inside each sheet
+        // is what closes the content. Previously the handle did the closing
+        // and was inert on screen 1, which left the pill looking draggable
+        // with nowhere to drag it.
+        onToggleCollapsed={toggleCollapsed}
       >
         {level === "list" && (
           <MobileBuildingSheet

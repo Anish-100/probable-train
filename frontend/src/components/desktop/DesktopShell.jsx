@@ -5,21 +5,31 @@ import ThemeToggle from "../shared/ThemeToggle.jsx"
 import CampusOverviewCard from "./CampusOverviewCard.jsx"
 import BuildingDetailPanel from "./BuildingDetailPanel.jsx"
 import RoomSchedulePanel from "./RoomSchedulePanel.jsx"
+import SidebarTab from "./SidebarTab.jsx"
 
-// The 372px sidebar beside a full-height map. State lives in AntRooms.jsx; this
-// file only arranges it.
+// The 372px sidebar beside a full-height map, or 0px and all map when
+// collapsed. State lives in AntRooms.jsx; this file only arranges it.
 export default function DesktopShell({
-  query, setQuery, day, setDay, time, setTime, timeOpen, setTimeOpen,
+  query, onQueryChange, day, setDay, time, setTime, timeOpen, setTimeOpen,
   selected, selectBuilding, room, setRoom, closeBuilding,
   hintDismissed, setHintDismissed, theme, toggleTheme,
   visible, selectedBuilding, counts, loading, listError,
-  meetings, scheduleLoading, scheduleError,
+  meetings, scheduleLoading, scheduleError, collapsed, toggleCollapsed,
 }) {
   return (
-    <div className="grid h-full grid-cols-[372px_minmax(0,1fr)]">
+    // Animating the COLUMN rather than sliding the sidebar means the map
+    // genuinely gets the width back and MapLibre's ResizeObserver picks it up.
+    // overflow-hidden is what stops 372px of sidebar spilling over the map
+    // while the column itself is 0px wide.
+    <div
+      className={`grid h-full overflow-hidden transition-[grid-template-columns] duration-300 ease-out ${
+        collapsed ? "grid-cols-[0px_minmax(0,1fr)]" : "grid-cols-[372px_minmax(0,1fr)]"
+      }`}
+    >
       <Sidebar
+        collapsed={collapsed}
         query={query}
-        onQueryChange={setQuery}
+        onQueryChange={onQueryChange}
         day={day}
         time={time}
         timeOpen={timeOpen}
@@ -40,6 +50,10 @@ export default function DesktopShell({
 
       <main className="relative bg-[var(--map-ground)]">
         <AntRoomsMap building={selectedBuilding} theme={theme} />
+        {/* No map padding to adjust: MapLibre measures padding inside the
+            canvas, and the canvas is this <main>, so the 452px reserved for
+            BuildingDetailPanel is right at either sidebar width. */}
+        <SidebarTab open={!collapsed} onToggle={toggleCollapsed} />
         <ThemeToggle theme={theme} onToggle={toggleTheme} className="absolute top-5 right-5 z-10" />
 
         {!selectedBuilding && !hintDismissed && (
