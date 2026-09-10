@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-const STORAGE_KEY = "eaterareas-theme"
+const STORAGE_KEY = "antrooms-theme"
 
 // Day/night, driven by a data-theme attribute on <html> that the token blocks
 // in index.css key off. The OS preference only seeds the FIRST visit -- after

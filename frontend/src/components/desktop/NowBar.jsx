@@ -1,4 +1,4 @@
-import { formatNow } from "../lib/time.js"
+import { formatNow } from "../../lib/time.js"
 
 // The yellow bar: what "now" the whole app is answering for, plus the escape
 // hatch to change it. The BAR's own label is always #16202c -- chosen against

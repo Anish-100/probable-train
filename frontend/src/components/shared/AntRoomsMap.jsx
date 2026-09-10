@@ -27,7 +27,7 @@ const OVERVIEW_ZOOM = 15.4
 // MapLibre is imperative and owns its own DOM, so React creates it once and
 // then issues commands. There are NO markers until a building is selected;
 // that was an explicit design decision, not an oversight.
-export default function EaterAreasMap({building, theme}) {
+export default function AntRoomsMap({building, theme}) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const markerRef = useRef(null)

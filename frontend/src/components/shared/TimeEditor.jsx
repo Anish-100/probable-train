@@ -1,4 +1,4 @@
-import { DAYS } from "../lib/time.js"
+import { DAYS } from "../../lib/time.js"
 
 // Shown only while the now bar is toggled open. Two controls, no submit --
 // changing either one re-derives the whole sidebar on the next render.

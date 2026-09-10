@@ -1,5 +1,5 @@
-import { DAYS, END_HOUR, HOUR_PX, START_HOUR, label12 } from "../lib/time.js"
-import { TERM_LABEL } from "../lib/term.js"
+import { DAYS, END_HOUR, HOUR_PX, START_HOUR, label12 } from "../../lib/time.js"
+import { TERM_LABEL } from "../../lib/term.js"
 
 const COLUMN_HEIGHT = (END_HOUR - START_HOUR) * HOUR_PX   // 528px
 const DAY_START_MIN = START_HOUR * 60                     // 480

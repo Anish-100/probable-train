@@ -1,5 +1,6 @@
-import { splitRooms } from "../lib/rooms.js"
-import { label12, toMinutes } from "../lib/time.js"
+import RoomGrid from "../shared/RoomGrid.jsx"
+import { splitRooms } from "../../lib/rooms.js"
+import { label12, toMinutes } from "../../lib/time.js"
 
 // Floats over the map at a fixed 452px -- the same 452 the map reserves as
 // left padding when it flies to the pin.
@@ -79,37 +80,5 @@ export default function BuildingDetailPanel({
 function SectionLabel({children}) {
   return (
     <h3 className="mb-[10px] text-xs font-semibold text-[var(--text-muted)]">{children}</h3>
-  )
-}
-
-// Open and busy differ by more than color: a filled blue card with a yellow
-// note versus a flat grey card with grey text. It survives grayscale.
-function RoomGrid({rooms, variant, selectedRoom, onSelectRoom, empty}) {
-  if (rooms.length === 0) {
-    return <p className="text-[13px] text-[var(--text-muted)]">{empty}</p>
-  }
-  const isOpen = variant === "open"
-  return (
-    <div className="grid grid-cols-3 gap-[10px]">
-      {rooms.map(({room, note}) => (
-        <button
-          key={room}
-          type="button"
-          onClick={() => onSelectRoom(room)}
-          className={`rounded-[14px] px-[14px] py-[13px] text-left ${
-            isOpen
-              ? "bg-[var(--accent)] hover:bg-[var(--accent-dark)]"
-              : "border border-[var(--neutral-fill)] bg-[var(--slot-bg)] hover:bg-[var(--neutral-fill)]"
-          } ${selectedRoom === room ? "ring-2 ring-[var(--accent-dark)]" : ""}`}
-        >
-          <div className={`text-[19px] font-bold ${isOpen ? "text-white" : "text-[var(--text-faint)]"}`}>
-            {room}
-          </div>
-          <div className={`mt-[3px] text-[11.5px] font-semibold ${isOpen ? "text-[var(--signal)]" : "text-[var(--text-faint)]"}`}>
-            {note}
-          </div>
-        </button>
-      ))}
-    </div>
   )
 }

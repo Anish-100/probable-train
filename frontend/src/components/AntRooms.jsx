@@ -1,10 +1,10 @@
 import { useState } from "react"
-import Sidebar from "./Sidebar.jsx"
-import BuildingList from "./BuildingList.jsx"
-import EaterAreasMap from "./EaterAreasMap.jsx"
-import CampusOverviewCard from "./CampusOverviewCard.jsx"
-import BuildingDetailPanel from "./BuildingDetailPanel.jsx"
-import RoomSchedulePanel from "./RoomSchedulePanel.jsx"
+import Sidebar from "./desktop/Sidebar.jsx"
+import BuildingList from "./shared/BuildingList.jsx"
+import AntRoomsMap from "./shared/AntRoomsMap.jsx"
+import CampusOverviewCard from "./desktop/CampusOverviewCard.jsx"
+import BuildingDetailPanel from "./desktop/BuildingDetailPanel.jsx"
+import RoomSchedulePanel from "./desktop/RoomSchedulePanel.jsx"
 import { useBuildings } from "../hooks/useBuildings.js"
 import { useAvailability } from "../hooks/useAvailability.js"
 import { useSchedule } from "../hooks/useSchedule.js"
@@ -16,7 +16,7 @@ import { initialDay, initialTime } from "../lib/time.js"
 // the panes; everything else -- the filtered list, the open/busy split, the
 // week grid -- is DERIVED on render rather than stored. Availability is never
 // state, matching the repo's busy-source pattern.
-export default function EaterAreas() {
+export default function AntRooms() {
   const [query, setQuery] = useState("")
   // Passing the FUNCTION (not initialDay()) makes React call it once on the
   // first render only. Calling it inline would re-run `new Date()` on every
@@ -66,7 +66,7 @@ export default function EaterAreas() {
       </Sidebar>
 
       <main className="relative bg-[var(--map-ground)]">
-        <EaterAreasMap building={selectedBuilding} theme={theme} />
+        <AntRoomsMap building={selectedBuilding} theme={theme} />
 
         {!selectedBuilding && !hintDismissed && (
           <CampusOverviewCard onDismiss={() => setHintDismissed(true)} />

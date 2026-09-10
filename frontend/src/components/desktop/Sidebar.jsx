@@ -1,5 +1,5 @@
 import NowBar from "./NowBar.jsx"
-import TimeEditor from "./TimeEditor.jsx"
+import TimeEditor from "../shared/TimeEditor.jsx"
 
 // Layout for the 372px left pane. It owns the chrome (brand, now bar, time
 // editor, search, section header, footer) and leaves the scrolling list itself
@@ -21,7 +21,7 @@ export default function Sidebar({
           {/* White on the navy band in BOTH themes -- chosen against the band,
               not against the theme, so it is not tokenized. */}
           <h1 className="text-[30px] font-extrabold text-white">
-            Eater<span className="text-[var(--signal)]">Areas</span>
+            Ant<span className="text-[var(--signal)]">Rooms</span>
           </h1>
           <p className="mt-1 text-[13px] text-[var(--accent-on-dark)]">
             Open classrooms at UCI, right now
