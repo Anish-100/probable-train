@@ -13,13 +13,8 @@ const port = process.env.PORT || 3001
 const BUILDINGS_TTL_MS = 10 * 60 * 1000   // 10 minutes
 const AVAILABILITY_TTL_MS = 60 * 1000     // 1 minute
 
-// CORS is a browser mechanism, not access control -- curl ignores it entirely,
-// and this data is public read-only anyway. Scoping it stops other sites from
-// running their frontend on our backend's quota. Requests with no Origin
-// header (curl, server-to-server) are unaffected.
-// Trim and drop empties: "a, b" would otherwise yield " b" with a leading
-// space, which matches no Origin header and fails CLOSED -- the browser blocks
-// every request while the server keeps answering 200 to curl.
+// Not access control (curl ignores CORS) -- it stops other sites running their
+// frontend on our quota. Trim: " b" matches no Origin and fails CLOSED.
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
   .split(',')
   .map((origin) => origin.trim().replace(/\/$/, ''))   // no trailing slash; Origin never has one
@@ -114,9 +109,8 @@ app.get('/api/availability', async (req, res) => {
       // 1. The room universe: the same cached value /api/buildings serves. No query.
       const buildings = await loadBuildingsCached()
 
-      // 2. The busy set: only meetings actually in class at this instant. A class
-      //    running 13:00-13:50 is busy at 13:00 but free again at 13:50, hence
-      //    lte on start and strict gt on end.
+      // 2. Busy right now. A 13:00-13:50 class holds the room at 13:00 and has
+      //    released it at 13:50, hence lte on start but strict gt on end.
       const {data, error} = await supabase
         .from('class_meetings')
         .select('rooms!inner(room_number, buildings!inner(code))')

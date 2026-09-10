@@ -1,21 +1,16 @@
 import { useState } from "react"
-import Sidebar from "./desktop/Sidebar.jsx"
-import BuildingList from "./shared/BuildingList.jsx"
-import AntRoomsMap from "./shared/AntRoomsMap.jsx"
-import CampusOverviewCard from "./desktop/CampusOverviewCard.jsx"
-import BuildingDetailPanel from "./desktop/BuildingDetailPanel.jsx"
-import RoomSchedulePanel from "./desktop/RoomSchedulePanel.jsx"
+import DesktopShell from "./desktop/DesktopShell.jsx"
+import MobileShell from "./mobile/MobileShell.jsx"
 import { useBuildings } from "../hooks/useBuildings.js"
 import { useAvailability } from "../hooks/useAvailability.js"
 import { useSchedule } from "../hooks/useSchedule.js"
 import { useTheme } from "../hooks/useTheme.js"
+import { useIsMobile } from "../hooks/useIsMobile.js"
 import { filterBuildings } from "../lib/buildings.js"
 import { initialDay, initialTime } from "../lib/time.js"
 
-// The shell. It owns all the state the design lists and hands slices of it to
-// the panes; everything else -- the filtered list, the open/busy split, the
-// week grid -- is DERIVED on render rather than stored. Availability is never
-// state, matching the repo's busy-source pattern.
+// Owns all the state and picks a layout; the two shells only arrange it. State
+// living here is what keeps your building and time across a breakpoint flip.
 export default function AntRooms() {
   const [query, setQuery] = useState("")
   // Passing the FUNCTION (not initialDay()) makes React call it once on the
@@ -40,61 +35,18 @@ export default function AntRooms() {
   // Fetched on select, not on mount. Both panels read these same rows.
   const {meetings, loading: scheduleLoading, error: scheduleError} = useSchedule(selected)
 
-  return (
-    <div className="grid h-full grid-cols-[372px_minmax(0,1fr)]">
-      <Sidebar
-        query={query}
-        onQueryChange={setQuery}
-        day={day}
-        time={time}
-        timeOpen={timeOpen}
-        onToggleTime={() => setTimeOpen((open) => !open)}
-        onDayChange={setDay}
-        onTimeChange={setTime}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-      >
-        <BuildingList
-          buildings={visible}
-          counts={counts}
-          loading={loading}
-          error={error || countsError}
-          hasQuery={query.trim().length > 0}
-          selected={selected}
-          onSelect={(code) => { setSelected(code); setRoom(null) }}
-        />
-      </Sidebar>
+  const isMobile = useIsMobile()
 
-      <main className="relative bg-[var(--map-ground)]">
-        <AntRoomsMap building={selectedBuilding} theme={theme} />
+  const shellProps = {
+    query, setQuery, day, setDay, time, setTime, timeOpen, setTimeOpen,
+    selected, room, setRoom, hintDismissed, setHintDismissed, theme, toggleTheme,
+    visible, selectedBuilding, counts, loading, meetings, scheduleLoading, scheduleError,
+    listError: error || countsError,
+    // Picking a building drops the room, or the old room's schedule shows under
+    // the new building's name.
+    selectBuilding: (code) => { setSelected(code); setRoom(null) },
+    closeBuilding: () => { setSelected(null); setRoom(null) },
+  }
 
-        {!selectedBuilding && !hintDismissed && (
-          <CampusOverviewCard onDismiss={() => setHintDismissed(true)} />
-        )}
-
-        {selectedBuilding && (
-          <BuildingDetailPanel
-            building={selectedBuilding}
-            meetings={meetings}
-            loading={scheduleLoading}
-            error={scheduleError}
-            day={day}
-            time={time}
-            selectedRoom={room}
-            onSelectRoom={setRoom}
-            onClose={() => { setSelected(null); setRoom(null) }}
-          />
-        )}
-
-        {selectedBuilding && room && (
-          <RoomSchedulePanel
-            buildingCode={selectedBuilding.code}
-            room={room}
-            meetings={meetings}
-            onClose={() => setRoom(null)}
-          />
-        )}
-      </main>
-    </div>
-  )
+  return isMobile ? <MobileShell {...shellProps} /> : <DesktopShell {...shellProps} />
 }

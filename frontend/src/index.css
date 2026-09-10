@@ -122,11 +122,15 @@ html,
 body,
 #root {
   height: 100%;
+  /* dvh tracks the mobile URL bar hiding; 100% above is the fallback. Without
+     it a sheet sized in % drifts as the bar shows and hides. */
+  height: 100dvh;
 }
 
 body {
   margin: 0;
   overflow: hidden;             /* the two panes scroll, the page never does */
+  overscroll-behavior: none;    /* no rubber-band revealing the page behind the map */
   font-family: Figtree, system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 15px;
   color: var(--text);

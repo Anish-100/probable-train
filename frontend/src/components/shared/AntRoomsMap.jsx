@@ -24,10 +24,16 @@ const OSM_STYLE = {
 const CENTER = [-117.8432, 33.6446]
 const OVERVIEW_ZOOM = 15.4
 
+// All four sides, always: MapLibre merges a partial padding object into the
+// current one, so an omitted side keeps its old value instead of clearing.
+const NO_PADDING = {top: 0, right: 0, bottom: 0, left: 0}
+// Desktop reserves the 452px detail panel; mobile passes a `bottom` instead.
+const DESKTOP_PADDING = {...NO_PADDING, left: 452}
+
 // MapLibre is imperative and owns its own DOM, so React creates it once and
 // then issues commands. There are NO markers until a building is selected;
 // that was an explicit design decision, not an oversight.
-export default function AntRoomsMap({building, theme}) {
+export default function AntRoomsMap({building, theme, padding = DESKTOP_PADDING}) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const markerRef = useRef(null)
@@ -35,6 +41,7 @@ export default function AntRoomsMap({building, theme}) {
   // diffing previous props, so a re-render for any other reason does not
   // restart the camera animation.
   const appliedCodeRef = useRef(undefined)
+  const appliedPaddingRef = useRef(undefined)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -46,13 +53,19 @@ export default function AntRoomsMap({building, theme}) {
       zoom: OVERVIEW_ZOOM,
     })
     mapRef.current = map
-    map.addControl(new maplibregl.NavigationControl({showCompass: false}), "top-right")
+    map.addControl(new maplibregl.NavigationControl({showCompass: false}), "bottom-left")
     // MapLibre measures its container once, at construction. If the layout has
     // not settled by then it sizes the canvas to 0 and renders nothing --
     // a "working" map you cannot see.
     map.once("load", () => mapRef.current?.resize())
 
+    // The breakpoint flip changes the container without a window resize event,
+    // and MapLibre only listens for the latter.
+    const observer = new ResizeObserver(() => mapRef.current?.resize())
+    observer.observe(containerRef.current)
+
     return () => {
+      observer.disconnect()
       mapRef.current?.remove()
       mapRef.current = null
       markerRef.current = null
@@ -80,8 +93,11 @@ export default function AntRoomsMap({building, theme}) {
     if (!map) return
 
     const code = building?.code ?? null
-    if (code === appliedCodeRef.current) return
+    // Padding is in the guard too: raising the sheet re-frames the same pin.
+    const paddingKey = JSON.stringify(padding)
+    if (code === appliedCodeRef.current && paddingKey === appliedPaddingRef.current) return
     appliedCodeRef.current = code
+    appliedPaddingRef.current = paddingKey
 
     if (markerRef.current) {
       markerRef.current.remove()
@@ -89,7 +105,7 @@ export default function AntRoomsMap({building, theme}) {
     }
 
     if (!building) {
-      map.easeTo({center: CENTER, zoom: OVERVIEW_ZOOM, padding: {left: 0}, duration: 700})
+      map.easeTo({center: CENTER, zoom: OVERVIEW_ZOOM, padding: NO_PADDING, duration: 700})
       return
     }
 
@@ -110,15 +126,15 @@ export default function AntRoomsMap({building, theme}) {
       .setLngLat([building.lng, building.lat])
       .addTo(map)
 
-    // padding.left reserves the 452px the detail panel occupies, so the pin
-    // lands beside the panel rather than underneath it.
+    // Padding keeps the pin clear of whatever covers the map -- a panel on the
+    // left for desktop, a sheet along the bottom for mobile.
     map.easeTo({
       center: [building.lng, building.lat],
       zoom: 17,
-      padding: {left: 452},
+      padding,
       duration: 800,
     })
-  }, [building])
+  }, [building, padding])
 
   return <div ref={containerRef} className="absolute inset-0 h-full w-full" />
 }

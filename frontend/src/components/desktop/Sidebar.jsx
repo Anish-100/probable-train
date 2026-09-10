@@ -11,12 +11,11 @@ import TimeEditor from "../shared/TimeEditor.jsx"
 export default function Sidebar({
   query, onQueryChange,
   day, time, timeOpen, onToggleTime, onDayChange, onTimeChange,
-  theme, onToggleTheme,
   children,
 }) {
   return (
     <aside className="flex h-full min-h-0 flex-col bg-[var(--sidebar)]">
-      <div className="brand-band flex items-start justify-between gap-3 rounded-br-[22px] bg-[var(--accent-darkest)] px-6 pt-6 pb-[22px]">
+      <div className="brand-band rounded-br-[22px] bg-[var(--accent-darkest)] px-6 pt-6 pb-[22px]">
         <div>
           {/* White on the navy band in BOTH themes -- chosen against the band,
               not against the theme, so it is not tokenized. */}
@@ -27,14 +26,6 @@ export default function Sidebar({
             Open classrooms at UCI, right now
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onToggleTheme}
-          aria-pressed={theme === "night"}
-          className="shrink-0 rounded-full bg-white/16 px-3 py-[6px] text-xs font-bold text-white hover:bg-white/30"
-        >
-          {theme === "night" ? "Day" : "Night"}
-        </button>
       </div>
 
       <NowBar day={day} time={time} timeOpen={timeOpen} onToggle={onToggleTime} />
