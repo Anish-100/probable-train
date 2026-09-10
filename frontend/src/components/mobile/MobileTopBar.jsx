@@ -7,7 +7,7 @@ export default function MobileTopBar({
   query, onQueryChange, day, time, timeOpen, onToggleTime, onDayChange, onTimeChange,
 }) {
   return (
-    <div className="absolute inset-x-4 top-[60px] z-10 flex flex-col gap-[10px]">
+    <div className="absolute inset-x-4 top-[calc(env(safe-area-inset-top)+12px)] z-10 flex flex-col gap-[10px]">
       <input
         type="search"
         value={query}

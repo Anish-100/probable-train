@@ -24,7 +24,7 @@ export default function MobileShell({
   return (
     <div className="relative h-full overflow-hidden bg-[var(--map-ground)]">
       <AntRoomsMap building={selectedBuilding} theme={theme} padding={padding} />
-      <ThemeToggle theme={theme} onToggle={toggleTheme} className="absolute top-[60px] right-4 z-30" />
+      <ThemeToggle theme={theme} onToggle={toggleTheme} className="absolute top-[calc(env(safe-area-inset-top)+12px)] right-4 z-30" />
 
       {!selectedBuilding && (
         <MobileTopBar
